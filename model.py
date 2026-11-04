@@ -224,8 +224,16 @@ def merge_heads_back_to_model_dim(multi_head_tensor):
 
     return output
 
-# Step 26 - apply_linear_projection (not yet solved)
-# TODO: implement
+# Step 26 - apply_linear_projection
+import torch
+
+def apply_linear_projection(x, weight, bias):
+    output = torch.matmul(x, weight.T)
+
+    if bias is not None:
+        output = output + bias
+
+    return output
 
 # Step 27 - project_to_query_key_value (not yet solved)
 # TODO: implement
