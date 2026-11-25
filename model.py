@@ -633,8 +633,58 @@ def init_encoder_layer_parameters(d_model, num_heads, d_ff):
 
     return params
 
-# Step 53 - init_decoder_layer_parameters (not yet solved)
-# TODO: implement
+# Step 53 - init_decoder_layer_parameters
+import torch
+
+def init_decoder_layer_parameters(d_model, num_heads, d_ff):
+    # Attention projections
+    params = {
+        "w_q_self": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_k_self": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_v_self": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_o_self": torch.empty(d_model, d_model, dtype=torch.float32),
+
+        # Cross-attention projections
+        "w_q_cross": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_k_cross": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_v_cross": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_o_cross": torch.empty(d_model, d_model, dtype=torch.float32),
+
+        # Feed-forward network
+        "w1": torch.empty(d_model, d_ff, dtype=torch.float32),
+        "b1": torch.zeros(d_ff, dtype=torch.float32),
+        "w2": torch.empty(d_ff, d_model, dtype=torch.float32),
+        "b2": torch.zeros(d_model, dtype=torch.float32),
+
+        # Self-attention LayerNorm
+        "self_gamma": torch.ones(d_model, dtype=torch.float32),
+        "self_beta": torch.zeros(d_model, dtype=torch.float32),
+
+        # Cross-attention LayerNorm
+        "cross_gamma": torch.ones(d_model, dtype=torch.float32),
+        "cross_beta": torch.zeros(d_model, dtype=torch.float32),
+
+        # Feed-forward LayerNorm
+        "ffn_gamma": torch.ones(d_model, dtype=torch.float32),
+        "ffn_beta": torch.zeros(d_model, dtype=torch.float32),
+    }
+
+    # Initialize weight matrices
+    weight_keys = [
+        "w_q_self", "w_k_self", "w_v_self", "w_o_self",
+        "w_q_cross", "w_k_cross", "w_v_cross", "w_o_cross",
+        "w1", "w2"
+    ]
+
+    with torch.no_grad():
+        for key in weight_keys:
+            torch.nn.init.xavier_uniform_(params[key])
+
+    # Make every tensor trainable
+    for tensor in params.values():
+        tensor.requires_grad_(True)
+
+    return params
 
 # Step 54 - init_embedding_and_projection_parameters (not yet solved)
 # TODO: implement
