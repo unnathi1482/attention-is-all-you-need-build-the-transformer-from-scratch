@@ -713,8 +713,36 @@ def init_embedding_and_projection_parameters(vocab_size, d_model, tie_weights=Tr
         "output_projection": output_projection
     }
 
-# Step 55 - collect_model_parameters_into_list (not yet solved)
-# TODO: implement
+# Step 55 - collect_model_parameters_into_list
+import torch
+
+def collect_model_parameters_into_list(encoder_layer_params, decoder_layer_params, embedding_params):
+    """Collect all unique trainable tensors in insertion order."""
+
+    params = []
+    seen = set()
+
+    # Encoder layers first
+    for layer in encoder_layer_params:
+        for tensor in layer.values():
+            if tensor.requires_grad and id(tensor) not in seen:
+                params.append(tensor)
+                seen.add(id(tensor))
+
+    # Decoder layers next
+    for layer in decoder_layer_params:
+        for tensor in layer.values():
+            if tensor.requires_grad and id(tensor) not in seen:
+                params.append(tensor)
+                seen.add(id(tensor))
+
+    # Embedding and output projection parameters last
+    for tensor in embedding_params.values():
+        if tensor.requires_grad and id(tensor) not in seen:
+            params.append(tensor)
+            seen.add(id(tensor))
+
+    return params
 
 # Step 56 - shift_targets_right_with_start_token (not yet solved)
 # TODO: implement
