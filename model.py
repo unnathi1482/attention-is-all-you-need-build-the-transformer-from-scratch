@@ -595,8 +595,43 @@ def run_transformer_forward(src_ids, tgt_ids, model_params, num_heads, pad_id):
 
     return log_probs
 
-# Step 52 - init_encoder_layer_parameters (not yet solved)
-# TODO: implement
+# Step 52 - init_encoder_layer_parameters
+import torch
+import math
+
+def init_encoder_layer_parameters(d_model, num_heads, d_ff):
+    """Return a dict of leaf tensors with requires_grad=True for one encoder layer."""
+
+    params = {
+        # Self-attention projections
+        "w_q": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_k": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_v": torch.empty(d_model, d_model, dtype=torch.float32),
+        "w_o": torch.empty(d_model, d_model, dtype=torch.float32),
+
+        # Feed-forward network
+        "w1": torch.empty(d_model, d_ff, dtype=torch.float32),
+        "b1": torch.zeros(d_ff, dtype=torch.float32),
+        "w2": torch.empty(d_ff, d_model, dtype=torch.float32),
+        "b2": torch.zeros(d_model, dtype=torch.float32),
+
+        # LayerNorm parameters
+        "attn_gamma": torch.ones(d_model, dtype=torch.float32),
+        "attn_beta": torch.zeros(d_model, dtype=torch.float32),
+        "ffn_gamma": torch.ones(d_model, dtype=torch.float32),
+        "ffn_beta": torch.zeros(d_model, dtype=torch.float32),
+    }
+
+    # Initialize all weight matrices
+    with torch.no_grad():
+        for name in ["w_q", "w_k", "w_v", "w_o", "w1", "w2"]:
+            torch.nn.init.xavier_uniform_(params[name])
+
+    # Make every tensor trainable
+    for name in params:
+        params[name].requires_grad_(True)
+
+    return params
 
 # Step 53 - init_decoder_layer_parameters (not yet solved)
 # TODO: implement
